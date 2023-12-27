@@ -36,6 +36,16 @@ public class TestReadHandler implements ReadHandler {
                                 + " (" + val.time.quality + ")"
                 )
         );
+
+        for (BinaryInput binaryInput : it){
+            String index = binaryInput.index.toString();
+            boolean value = binaryInput.value;
+            if (index.equals("2") && value){
+                System.out.println("++++++++++++++++++++++++++++++LOCAL_MODE++++++++++++++++++++++++++++++");
+            } else {
+                System.out.println("++++++++++++++++++++++++++++++REMOTE_MODE++++++++++++++++++++++++++++++");
+            }
+        }
         System.out.println("===============End Binary Inputs===============");
     }
 
