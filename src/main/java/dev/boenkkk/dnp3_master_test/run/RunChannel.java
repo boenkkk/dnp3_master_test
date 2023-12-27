@@ -1,6 +1,7 @@
 package dev.boenkkk.dnp3_master_test.run;
 
 import dev.boenkkk.dnp3_master_test.config.TestAssociationConfig;
+import dev.boenkkk.dnp3_master_test.handler.EmptyReadHandler;
 import dev.boenkkk.dnp3_master_test.handler.TestAssociationHandler;
 import dev.boenkkk.dnp3_master_test.handler.TestReadHandler;
 import dev.boenkkk.dnp3_master_test.listener.TestAssociationInformation;
@@ -20,6 +21,7 @@ public class RunChannel {
         System.out.println("runChannel");
 
         TestReadHandler readHandler = new TestReadHandler();
+        // EmptyReadHandler readHandler = new EmptyReadHandler();
 
         TestAssociationHandler testAssociationHandler = new TestAssociationHandler();
 
