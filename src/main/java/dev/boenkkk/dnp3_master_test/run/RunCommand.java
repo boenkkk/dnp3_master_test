@@ -73,9 +73,7 @@ public class RunCommand {
                     System.out.println("input BO index: (int)");
                     int inBoIndex = scanner.nextInt();
 
-                    System.out.println("reference:");
-                    System.out.println("io.stepfunc.dnp3.OpType");
-                    System.out.println("https://docs.stepfunc.io/dnp3/1.5.1/java/io/stepfunc/dnp3/OpType.html");
+                    System.out.println("reference: NUL(0), PULSE_ON(1), PULSE_OFF(2), LATCH_ON(3), LATCH_OFF(4)");
                     System.out.println("input Operation Type value:");
                     int inOpType = scanner.nextInt();
 
@@ -95,6 +93,72 @@ public class RunCommand {
                     commands.addG12V1U16(ushort(inBoIndex), control);
 
                     System.out.println("===============channel.operate "+inBoIndex+"|"+opType+"|"+opType.ordinal()+"===============");
+                    channel.operate(association, CommandMode.DIRECT_OPERATE, commands)
+                            .toCompletableFuture()
+                            .get();
+
+                    System.out.println("===============after operate===============");
+                    channel.read(association, request).toCompletableFuture().get();
+                } catch (ExecutionException e) {
+                    System.err.println("Error: "+e.getMessage());
+                    e.printStackTrace();
+                } finally {
+                    System.out.println("===============channel.disable()===============");
+                    channel.disable();
+
+                    System.out.println("===============end "+command+"===============");
+                }
+            }
+            case "do.on" -> {
+                System.out.println("==============="+command+"===============");
+                try {
+                    System.out.println("===============channel.enable()===============");
+                    channel.enable();
+
+                    Variation variation = Variation.GROUP10_VAR0;
+                    Request request = new Request();
+                    request.addAllObjectsHeader(variation);
+                    System.out.println("===============before operate===============");
+                    channel.read(association, request).toCompletableFuture().get();
+
+                    System.out.println("===============set command===============");
+                    Group12Var1 control = Group12Var1.fromCode(ControlCode.fromOpType(OpType.LATCH_ON));
+                    CommandSet commands = new CommandSet();
+                    commands.addG12V1U16(ushort(0), control);
+
+                    channel.operate(association, CommandMode.DIRECT_OPERATE, commands)
+                            .toCompletableFuture()
+                            .get();
+
+                    System.out.println("===============after operate===============");
+                    channel.read(association, request).toCompletableFuture().get();
+                } catch (ExecutionException e) {
+                    System.err.println("Error: "+e.getMessage());
+                    e.printStackTrace();
+                } finally {
+                    System.out.println("===============channel.disable()===============");
+                    channel.disable();
+
+                    System.out.println("===============end "+command+"===============");
+                }
+            }
+            case "do.off" -> {
+                System.out.println("==============="+command+"===============");
+                try {
+                    System.out.println("===============channel.enable()===============");
+                    channel.enable();
+
+                    Variation variation = Variation.GROUP10_VAR0;
+                    Request request = new Request();
+                    request.addAllObjectsHeader(variation);
+                    System.out.println("===============before operate===============");
+                    channel.read(association, request).toCompletableFuture().get();
+
+                    System.out.println("===============set command===============");
+                    Group12Var1 control = Group12Var1.fromCode(ControlCode.fromOpType(OpType.LATCH_ON));
+                    CommandSet commands = new CommandSet();
+                    commands.addG12V1U16(ushort(1), control);
+
                     channel.operate(association, CommandMode.DIRECT_OPERATE, commands)
                             .toCompletableFuture()
                             .get();
