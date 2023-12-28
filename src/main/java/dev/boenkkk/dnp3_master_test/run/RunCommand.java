@@ -1,8 +1,6 @@
 package dev.boenkkk.dnp3_master_test.run;
 
-import dev.boenkkk.dnp3_master_test.util.ExecutorUtil;
-import dev.boenkkk.dnp3_master_test.util.OpTypeUtil;
-import dev.boenkkk.dnp3_master_test.util.VariationUtil;
+import dev.boenkkk.dnp3_master_test.util.*;
 import io.stepfunc.dnp3.*;
 
 import java.util.Scanner;
@@ -66,12 +64,16 @@ public class RunCommand {
                     }
                 }
             }
-            case "o.boc.do" -> {
+            case "o.boc" -> {
                 System.out.println("==============="+command+"===============");
                 try {
                     Scanner scanner = new Scanner(System.in);
                     System.out.println("input BO index: (int)");
                     int inBoIndex = scanner.nextInt();
+
+                    System.out.println("reference: DIRECT_OPERATE(0), SELECT_BEFORE_OPERATE(1)");
+                    System.out.println("input Command Mode value:");
+                    int inCommandMode = scanner.nextInt();
 
                     System.out.println("reference: NUL(0), PULSE_ON(1), PULSE_OFF(2), LATCH_ON(3), LATCH_OFF(4)");
                     System.out.println("input Operation Type value:");
@@ -87,13 +89,15 @@ public class RunCommand {
                     channel.read(association, request).toCompletableFuture().get();
 
                     System.out.println("===============set command===============");
+                    CommandMode commandMode = CommandModeUtil.getCommandModeByValue(inCommandMode);
                     OpType opType = OpTypeUtil.getOpTypeByValue(inOpType);
+
                     Group12Var1 control = Group12Var1.fromCode(ControlCode.fromOpType(opType));
                     CommandSet commands = new CommandSet();
                     commands.addG12V1U16(ushort(inBoIndex), control);
 
-                    System.out.println("===============channel.operate "+inBoIndex+"|"+opType+"|"+opType.ordinal()+"===============");
-                    channel.operate(association, CommandMode.DIRECT_OPERATE, commands)
+                    System.out.println("===============channel.operate "+inBoIndex+"|"+commandMode+"|"+commandMode.ordinal()+"|"+opType+"|"+opType.ordinal()+"===============");
+                    channel.operate(association, commandMode, commands)
                             .toCompletableFuture()
                             .get();
 
