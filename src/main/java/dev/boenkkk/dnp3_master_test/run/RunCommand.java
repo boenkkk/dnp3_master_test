@@ -74,10 +74,27 @@ public class RunCommand {
                     System.out.println("reference: DIRECT_OPERATE(0), SELECT_BEFORE_OPERATE(1)");
                     System.out.println("input Command Mode value:");
                     int inCommandMode = scanner.nextInt();
+                    CommandMode commandMode = CommandModeUtil.getCommandModeByValue(inCommandMode);
+
+                    System.out.println("reference: NUL(0), CLOSE(1), TRIP(2), RESERVED(3)");
+                    System.out.println("input Trip Close Code value:");
+                    int inTripCloseCode = scanner.nextInt();
+                    TripCloseCode tripCloseCode = TripCloseCodeUtil.getTripCloseCodeByValue(inTripCloseCode);
 
                     System.out.println("reference: NUL(0), PULSE_ON(1), PULSE_OFF(2), LATCH_ON(3), LATCH_OFF(4)");
                     System.out.println("input Operation Type value:");
                     int inOpType = scanner.nextInt();
+                    OpType opType = OpTypeUtil.getOpTypeByValue(inOpType);
+
+                    System.out.println("reference: FALSE(0), TRUE(1)");
+                    System.out.println("input clear value:");
+                    int inClear = scanner.nextInt();
+                    boolean isClear = ConvertUtil.convertIntToBoolean(inClear);
+
+                    System.out.println("reference: FALSE(0), TRUE(1)");
+                    System.out.println("input queue value:");
+                    int inQueue = scanner.nextInt();
+                    boolean isQueue = ConvertUtil.convertIntToBoolean(inQueue);
 
                     System.out.println("===============channel.enable()===============");
                     channel.enable();
@@ -89,14 +106,18 @@ public class RunCommand {
                     channel.read(association, request).toCompletableFuture().get();
 
                     System.out.println("===============set command===============");
-                    CommandMode commandMode = CommandModeUtil.getCommandModeByValue(inCommandMode);
-                    OpType opType = OpTypeUtil.getOpTypeByValue(inOpType);
-
-                    Group12Var1 control = Group12Var1.fromCode(ControlCode.fromOpType(opType));
+                    Group12Var1 control = Group12Var1.fromCode(
+                            ControlCode.fromTccAndOpType(
+                                    tripCloseCode,
+                                    opType
+                            ).withClear(isClear)
+                            .withQueue(isQueue)
+                    );
                     CommandSet commands = new CommandSet();
                     commands.addG12V1U16(ushort(inBoIndex), control);
 
-                    System.out.println("===============channel.operate "+inBoIndex+"|"+commandMode+"|"+commandMode.ordinal()+"|"+opType+"|"+opType.ordinal()+"===============");
+                    System.out.println("===============channel.operate===============");
+                    System.out.println("param operate: "+inBoIndex+"|"+commandMode+"|"+commandMode.ordinal()+"|"+opType+"|"+opType.ordinal()+"|"+tripCloseCode+"|"+tripCloseCode.ordinal());
                     channel.operate(association, commandMode, commands)
                             .toCompletableFuture()
                             .get();
